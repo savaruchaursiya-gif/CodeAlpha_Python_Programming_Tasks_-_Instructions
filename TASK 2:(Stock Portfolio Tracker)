@@ -1,0 +1,86 @@
+import tkinter as tk
+from tkinter import messagebox
+
+# Hardcoded stock prices
+stock_prices = {
+    "AAPL": 180,
+    "TSLA": 250,
+    "GOOG": 140,
+    "MSFT": 320
+}
+
+total_value = 0
+
+# Function to add stock
+def add_stock():
+    global total_value
+    
+    stock = entry_stock.get().upper()
+    qty = entry_qty.get()
+    
+    if stock == "" or qty == "":
+        messagebox.showerror("Error", "Please enter all fields")
+        return
+    
+    if stock not in stock_prices:
+        messagebox.showerror("Error", "Stock not available")
+        return
+    
+    try:
+        qty = int(qty)
+    except:
+        messagebox.showerror("Error", "Quantity must be number")
+        return
+    
+    value = stock_prices[stock] * qty
+    total_value += value
+    
+    listbox.insert(tk.END, f"{stock} x {qty} = {value}")
+    label_total.config(text=f"Total: {total_value}")
+    
+    entry_stock.delete(0, tk.END)
+    entry_qty.delete(0, tk.END)
+
+# Function to save file
+def save_file():
+    file = open("portfolio.txt", "w")
+    file.write("Stock Portfolio\n")
+    file.write("----------------\n")
+    
+    for item in listbox.get(0, tk.END):
+        file.write(item + "\n")
+    
+    file.write("----------------\n")
+    file.write(f"Total = {total_value}")
+    file.close()
+    
+    messagebox.showinfo("Saved", "Data saved to portfolio.txt")
+
+# GUI window
+root = tk.Tk()
+root.title("Stock Portfolio Tracker")
+root.geometry("400x400")
+
+# Labels & Entries
+tk.Label(root, text="Stock Name").pack()
+entry_stock = tk.Entry(root)
+entry_stock.pack()
+
+tk.Label(root, text="Quantity").pack()
+entry_qty = tk.Entry(root)
+entry_qty.pack()
+
+# Buttons
+tk.Button(root, text="Add Stock", command=add_stock).pack(pady=5)
+tk.Button(root, text="Save to File", command=save_file).pack(pady=5)
+
+# Listbox to show entries
+listbox = tk.Listbox(root, width=40)
+listbox.pack(pady=10)
+
+# Total label
+label_total = tk.Label(root, text="Total: 0")
+label_total.pack()
+
+# Run app
+root.mainloop()
